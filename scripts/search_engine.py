@@ -2,7 +2,8 @@ import os
 import re
 
 # Path to the single knowledge base file
-KNOWLEDGE_BASE_FILE = "../syllabus_text/cleaned/os_knowledge_base.txt"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+KNOWLEDGE_BASE_FILE = os.path.join(BASE_DIR, "../syllabus_text/cleaned/os_knowledge_base.txt")
 
 # Stopwords to ignore
 STOPWORDS = {
