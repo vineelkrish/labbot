@@ -1,0 +1,352 @@
+=== SUBJECT: Operating Systems ===
+
+--- CONCEPT: Operating System ---
+Definition: An operating system is system software that acts as an interface between user applications and computer hardware, enabling the execution of programs.
+Key Points:
+- Provides an easy-to-use environment for users
+- Efficiently utilizes computer resources
+- Acts as a resource allocator
+
+
+--- CONCEPT: Goals of Operating System ---
+Definition: The primary goal of an operating system is to provide convenience to users, while the secondary goal is efficient utilization of system resources.
+Key Points:
+- Ease of use
+- Resource efficiency
+- Modularity and abstraction
+- Ease of debugging
+
+
+--- CONCEPT: Functions of Operating System ---
+Definition: The operating system performs various functions to manage system resources and provide services to applications.
+Key Points:
+- Process management
+- Memory management
+- Resource allocation
+- File system management
+- Protection and security
+
+
+--- CONCEPT: Batch Operating System ---
+Definition: A batch operating system groups similar jobs into batches and executes them sequentially without user interaction.
+Key Points:
+- One job executes at a time
+- High CPU idle time
+- Low throughput
+
+
+--- CONCEPT: Multiprogramming Operating System ---
+Definition: A multiprogramming operating system keeps multiple programs in memory and switches the CPU among them to improve utilization.
+Key Points:
+- Multiple jobs in main memory
+- Improved CPU utilization
+- Increased system throughput
+
+
+--- CONCEPT: Multitasking Operating System ---
+Definition: A multitasking operating system executes multiple tasks by sharing CPU time among them.
+Key Points:
+- Time-sharing based execution
+- Good response time
+
+
+--- CONCEPT: Real-Time Operating System ---
+Definition: A real-time operating system processes tasks within fixed time constraints to ensure correct system behavior.
+Key Points:
+- Hard real-time systems
+- Soft real-time systems
+- Deadline-based execution
+
+
+--- CONCEPT: Distributed Operating System ---
+Definition: A distributed operating system manages jobs executed across multiple networked processors.
+Key Points:
+- Resource sharing
+- Improved reliability
+- Increased computation speed
+
+
+--- CONCEPT: Dual Mode Operation ---
+Definition: Dual mode operation allows a processor to execute instructions in either user mode or kernel mode to ensure protection and security.
+Key Points:
+- Kernel mode has full hardware access
+- User mode has restricted access
+- Mode bit determines the current mode
+
+
+--- CONCEPT: System Call ---
+Definition: System calls provide an interface through which user programs can request services from the operating system.
+Key Points:
+- Acts as an entry point to the kernel
+- Enables controlled access to hardware resources
+
+
+--- CONCEPT: Fork System Call ---
+Definition: The fork system call is used to create a new child process from an existing parent process.
+Key Points:
+- Returns 0 to the child process
+- Returns child process ID to the parent process
+
+
+--- CONCEPT: Program ---
+Definition: A program is a passive set of instructions and data stored in secondary memory.
+
+
+--- CONCEPT: Process ---
+Definition: A process is a program in execution along with its current state.
+Key Points:
+- Resides in main memory
+- Is active and dynamic
+- Allocated system resources
+
+
+--- CONCEPT: Process Control Block ---
+Definition: The process control block is a data structure that stores all information related to a process.
+Key Points:
+- Process state
+- Program counter
+- CPU registers
+- Memory information
+- Open files and devices
+
+
+--- CONCEPT: Process States ---
+Definition: A process passes through different states during its lifetime.
+Key Points:
+- New
+- Ready
+- Running
+- Waiting
+- Terminated
+
+
+--- CONCEPT: Long-Term Scheduler ---
+Definition: The long-term scheduler selects processes from secondary memory and loads them into main memory.
+
+
+--- CONCEPT: Medium-Term Scheduler ---
+Definition: The medium-term scheduler swaps processes between main memory and secondary memory.
+
+
+--- CONCEPT: Short-Term Scheduler ---
+Definition: The short-term scheduler selects a ready process to execute on the CPU.
+
+
+--- CONCEPT: Dispatcher ---
+Definition: The dispatcher assigns the CPU to the process selected by the short-term scheduler and performs context switching.
+
+
+--- CONCEPT: CPU Scheduling ---
+Definition: CPU scheduling is the mechanism by which the operating system selects one process from the ready queue to allocate the CPU.
+Key Points:
+- Improves CPU utilization
+- Reduces waiting time
+- Reduces response time
+
+
+--- CONCEPT: Scheduling Criteria ---
+Definition: Scheduling criteria are parameters used to evaluate the effectiveness of a CPU scheduling algorithm.
+Key Points:
+- CPU utilization
+- Waiting time
+- Turnaround time
+- Response time
+
+
+--- CONCEPT: First Come First Serve Scheduling ---
+Definition: First Come First Serve scheduling is a non-preemptive algorithm in which processes are scheduled in the order of their arrival.
+
+
+--- CONCEPT: Shortest Job First Scheduling ---
+Definition: Shortest Job First scheduling assigns the CPU to the process with the smallest burst time.
+
+
+--- CONCEPT: Round Robin Scheduling ---
+Definition: Round Robin scheduling assigns CPU time to processes in fixed time slices in a cyclic order.
+
+
+--- CONCEPT: Thread ---
+Definition: A thread is a lightweight process that shares the resources of a process but has its own execution context.
+
+
+--- CONCEPT: User-Level Threads ---
+Definition: User-level threads are managed by user-level libraries and are not directly recognized by the kernel.
+
+
+--- CONCEPT: Kernel-Level Threads ---
+Definition: Kernel-level threads are managed by the operating system and are recognized by the kernel.
+
+--- CONCEPT: Deadlock ---
+Definition: Deadlock is a situation in which a set of processes are blocked because each process is holding a resource and waiting for another resource held by another process.
+Key Points:
+- Processes wait indefinitely
+- Resources are never released
+- System makes no progress
+
+--- CONCEPT: Deadlock Characteristics ---
+Definition: Deadlock occurs only if all four necessary conditions hold simultaneously.
+Key Points:
+- Mutual Exclusion
+- Hold and Wait
+- No Preemption
+- Circular Wait
+
+--- CONCEPT: Mutual Exclusion ---
+Definition: Mutual exclusion means that a resource can be held by only one process at a time.
+
+--- CONCEPT: Hold and Wait ---
+Definition: Hold and wait occurs when a process holds at least one resource and waits to acquire additional resources.
+
+--- CONCEPT: No Preemption ---
+Definition: No preemption means that resources cannot be forcibly taken from a process and must be released voluntarily.
+
+--- CONCEPT: Circular Wait ---
+Definition: Circular wait occurs when a set of processes wait for each other in a circular chain to release resources.
+
+--- CONCEPT: Deadlock Prevention ---
+Definition: Deadlock prevention ensures that the system never enters a deadlock state by denying at least one deadlock condition.
+Key Points:
+- Avoid hold and wait
+- Allow resource preemption
+- Enforce resource ordering
+
+--- CONCEPT: Deadlock Avoidance ---
+Definition: Deadlock avoidance dynamically checks resource allocation to ensure the system always remains in a safe state.
+Key Points:
+- Uses Banker’s Algorithm
+- Avoids unsafe states
+
+--- CONCEPT: Deadlock Detection ---
+Definition: Deadlock detection identifies deadlock after it has occurred using resource allocation analysis.
+
+--- CONCEPT: Deadlock Recovery ---
+Definition: Deadlock recovery resolves deadlock by terminating processes or preempting resources.
+Key Points:
+- Process termination
+- Resource preemption
+- Ostrich approach
+
+--- CONCEPT: Memory Management ---
+Definition: Memory management is the process of controlling and coordinating computer memory by assigning portions to programs while optimizing performance.
+Key Points:
+- Efficient memory utilization
+- Reduces fragmentation
+
+--- CONCEPT: Logical Address ---
+Definition: A logical address is generated by the CPU and is visible to the user program.
+
+--- CONCEPT: Physical Address ---
+Definition: A physical address is the actual location in main memory accessed by the hardware.
+
+--- CONCEPT: Memory Management Unit ---
+Definition: The memory management unit is a hardware device that maps logical addresses to physical addresses.
+
+--- CONCEPT: Loading ---
+Definition: Loading is the process of bringing a program from secondary memory into main memory for execution.
+Key Points:
+- Absolute loading
+- Relocatable loading
+- Dynamic loading
+
+--- CONCEPT: Linking ---
+Definition: Linking combines multiple object files into a single executable program.
+Key Points:
+- Static linking
+- Dynamic linking
+
+--- CONCEPT: Address Binding ---
+Definition: Address binding is the association of program instructions to physical memory addresses.
+Key Points:
+- Compile-time binding
+- Load-time binding
+- Execution-time binding
+
+--- CONCEPT: Contiguous Memory Allocation ---
+Definition: Contiguous memory allocation assigns a single continuous block of memory to a process.
+Key Points:
+- Fixed partitioning
+- Variable partitioning
+- Suffers from fragmentation
+
+--- CONCEPT: Paging ---
+Definition: Paging is a memory management technique that divides logical memory into pages and physical memory into frames.
+Key Points:
+- Eliminates external fragmentation
+- Page table used for address translation
+
+--- CONCEPT: Segmentation ---
+Definition: Segmentation divides a process into variable-sized segments based on logical divisions.
+Key Points:
+- Matches user view of memory
+- Uses segment table
+
+--- CONCEPT: Segmented Paging ---
+Definition: Segmented paging combines segmentation and paging to improve memory utilization.
+
+--- CONCEPT: Virtual Memory ---
+Definition: Virtual memory allows execution of programs larger than physical memory by using secondary storage.
+Key Points:
+- Increases memory illusion
+- Supports multiprogramming
+
+--- CONCEPT: Demand Paging ---
+Definition: Demand paging loads pages into memory only when they are required.
+Key Points:
+- Page fault occurs if page not in memory
+- Reduces memory usage
+
+--- CONCEPT: Page Replacement ---
+Definition: Page replacement selects a memory page to remove when a new page must be loaded.
+Key Points:
+- FIFO
+- LRU
+- Optimal
+
+--- CONCEPT: Thrashing ---
+Definition: Thrashing occurs when the system spends more time swapping pages than executing processes.
+
+--- CONCEPT: Working Set Model ---
+Definition: The working set model represents the set of pages frequently accessed by a process.
+
+--- CONCEPT: File ---
+Definition: A file is a collection of logically related data stored on secondary storage.
+
+--- CONCEPT: File Attributes ---
+Definition: File attributes describe properties of a file.
+Key Points:
+- Name
+- Size
+- Location
+- Permissions
+
+--- CONCEPT: File Operations ---
+Definition: File operations are actions performed on files.
+Key Points:
+- Create
+- Read
+- Write
+- Delete
+
+--- CONCEPT: File Allocation Methods ---
+Definition: File allocation methods determine how disk blocks are allocated to files.
+Key Points:
+- Contiguous allocation
+- Linked allocation
+- Indexed allocation
+
+--- CONCEPT: Disk Scheduling ---
+Definition: Disk scheduling determines the order in which disk I/O requests are serviced.
+Key Points:
+- Minimizes seek time
+- Improves throughput
+
+--- CONCEPT: Disk Scheduling Algorithms ---
+Definition: Disk scheduling algorithms optimize disk head movement.
+Key Points:
+- FCFS
+- SSTF
+- SCAN
+- C-SCAN
+- LOOK
+- C-LOOK
+

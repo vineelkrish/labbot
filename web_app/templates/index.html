@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LabBot AI Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <div class="logo">🤖 LabBot</div>
+        <div class="status">AI Academic Assistant</div>
+    </div>
+
+    <div class="chat-container" id="chatBox">
+        <div class="welcome">
+            <div class="ai-avatar">🤖</div>
+            <div class="welcome-text">
+                Hello! I am LabBot.<br>
+                Ask me anything from Operating Systems.
+            </div>
+        </div>
+    </div>
+
+    <div class="input-panel">
+        <button class="mic-btn" onclick="startVoice()">🎤</button>
+
+        <input id="questionInput" placeholder="Ask anything from Operating Systems..." autocomplete="off">
+
+        <button id="askBtn" class="send-btn" onclick="askQuestion()">Ask</button>
+        <button class="interview-btn" onclick="startInterview()">Interview</button>
+    </div>
+
+</div>
+<div class="bg-glow"></div>
+
+<script>
+let interviewActive = false;
+let currentInterviewQuestion = "";
+
+// ---------- ASK QUESTION ----------
+async function askQuestion() {
+
+    const input = document.getElementById("questionInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user");
+    input.value = "";
+
+    try {
+
+        if (interviewActive) {
+            await submitInterviewAnswer(text);
+            return;
+        }
+
+        showTyping();
+
+        const res = await fetch("/ask", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({question: text})
+        });
+
+        if (!res.ok) throw new Error("Server error");
+
+        const data = await res.json();
+
+        removeTyping();
+        addMessage(data.answer, "bot");
+        safeSpeak(data.answer);
+
+    } catch (err) {
+        console.error(err);
+        removeTyping();
+        addMessage("⚠ Server not responding. Check backend.", "bot");
+    }
+}
+
+
+// ---------- INTERVIEW ----------
+async function startInterview(){
+    try{
+        const res = await fetch("/start_interview");
+        const data = await res.json();
+
+        interviewActive = true;
+        currentInterviewQuestion = data.question;
+
+        document.getElementById("askBtn").innerText="Submit";
+        addMessage("🎓 "+data.question,"bot");
+
+    }catch(e){
+        console.error(e);
+        addMessage("⚠ Interview mode failed", "bot");
+    }
+}
+
+async function submitInterviewAnswer(answer){
+    try{
+        showTyping();
+
+        const res = await fetch("/evaluate",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({question:currentInterviewQuestion,answer})
+        });
+
+        if(!res.ok) throw new Error("Evaluation failed");
+
+        const data = await res.json();
+        removeTyping();
+
+        addCard(data.score,data.feedback,data.model_answer);
+        safeSpeak("Score "+data.score+" percent. "+data.feedback);
+
+        interviewActive=false;
+        document.getElementById("askBtn").innerText="Ask";
+
+    }catch(e){
+        console.error(e);
+        removeTyping();
+        addMessage("⚠ Evaluation failed", "bot");
+    }
+}
+
+
+// ---------- CHAT UI ----------
+function addMessage(text,type){
+    const chat=document.getElementById("chatBox");
+
+    const wrapper=document.createElement("div");
+    wrapper.className="msg-wrapper "+type;
+
+    const msg=document.createElement("div");
+    msg.className="msg "+type;
+
+    if(type==="bot"){
+        msg.innerHTML=formatAI(text);
+    }else{
+        msg.textContent=text;
+    }
+
+    const time=document.createElement("div");
+    time.className="msg-time";
+    time.innerText=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+    wrapper.appendChild(msg);
+    wrapper.appendChild(time);
+    chat.appendChild(wrapper);
+
+    chat.scrollTop=chat.scrollHeight;
+}
+
+function formatAI(text){
+
+    text=text.replace(/CONCEPT:?/gi,"");
+    text=text.replace(/Definition:?/gi,"");
+
+    let sentences=text.split(/\. |\n/);
+
+    let html="";
+
+    sentences.forEach((s,i)=>{
+        s=s.trim();
+        if(!s) return;
+
+        if(i===0){
+            html+=`<div class="ai-heading">${s}</div>`;
+        }
+        else{
+            html+=`<div class="ai-line">${s}</div>`;
+        }
+    });
+
+    return html;
+}
+
+function addCard(score,feedback,answer){
+    const chat=document.getElementById("chatBox");
+    const card=document.createElement("div");
+    card.className="result-card";
+    card.innerHTML=`
+        <div class="score">${score}%</div>
+        <div class="feedback">${feedback}</div>
+        <div class="model">${answer}</div>`;
+    chat.appendChild(card);
+    chat.scrollTop=chat.scrollHeight;
+}
+
+function showTyping(){
+    removeTyping();
+    const chat=document.getElementById("chatBox");
+
+    const div=document.createElement("div");
+    div.id="typing";
+    div.className="typing-bubble";
+    div.innerHTML=`
+        <span></span>
+        <span></span>
+        <span></span>
+    `;
+
+    chat.appendChild(div);
+    chat.scrollTop=chat.scrollHeight;
+}
+
+function removeTyping(){
+    const t=document.getElementById("typing");
+    if(t) t.remove();
+}
+
+
+// ---------- SAFE SPEECH ----------
+function safeSpeak(text){
+    try{
+        if(!window.speechSynthesis) return;
+
+        window.speechSynthesis.cancel();
+
+        const speech=new SpeechSynthesisUtterance(text);
+        speech.rate=1;
+        speech.pitch=1;
+
+        speech.onerror=()=>console.log("Speech blocked");
+
+        window.speechSynthesis.speak(speech);
+
+    }catch(e){
+        console.log("Speech failed");
+    }
+}
+
+
+// ---------- VOICE INPUT ----------
+function startVoice(){
+    if(!('webkitSpeechRecognition' in window)){
+        alert("Voice not supported in this browser");
+        return;
+    }
+
+    const mic=document.querySelector(".mic-btn");
+    mic.classList.add("recording");
+
+    const rec=new webkitSpeechRecognition();
+    rec.lang="en-US";
+    rec.start();
+
+    rec.onresult=e=>{
+        document.getElementById("questionInput").value=e.results[0][0].transcript;
+        mic.classList.remove("recording");
+    };
+
+    rec.onend=()=>mic.classList.remove("recording");
+}
+
+</script>
+
+
+</body>
+</html>
