@@ -6,17 +6,18 @@ from sentence_transformers import SentenceTransformer, util
 
 # Add scripts folder to path
 sys.path.append(os.path.abspath("../scripts"))
-from search_engine import search, load_knowledge_base
+
+# IMPORT NEW SEMANTIC ENGINE
+from semantic_engine import search, format_answer, build_vector_index
 
 app = Flask(__name__)
 
-# -----------------------------
-# Load Knowledge Base
-# -----------------------------
-knowledge_text = load_knowledge_base()
+# Build vector database once at startup
+build_vector_index()
 
-# Load semantic model (for interview scoring)
+# Model for interview scoring
 model = SentenceTransformer('all-MiniLM-L6-v2')
+
 
 # -----------------------------
 # Interview Question Bank
@@ -31,28 +32,6 @@ INTERVIEW_QUESTIONS = [
 
 
 # -----------------------------
-# Format Answer
-# -----------------------------
-def format_answer(block):
-    if not block:
-        return ""
-
-    lines = block.splitlines()
-    clean_lines = []
-
-    for line in lines:
-        line = line.strip()
-
-        if line.startswith("Definition:"):
-            clean_lines.append(line.replace("Definition:", "").strip())
-
-        elif line.startswith("-"):
-            clean_lines.append(line.strip("- ").strip())
-
-    return " ".join(clean_lines)
-
-
-# -----------------------------
 # Home Page
 # -----------------------------
 @app.route("/")
@@ -61,7 +40,7 @@ def home():
 
 
 # -----------------------------
-# Ask Question (Main Assistant)
+# Ask Question (Semantic AI)
 # -----------------------------
 @app.route("/ask", methods=["POST"])
 def ask():
@@ -75,7 +54,8 @@ def ask():
     if question == "":
         return jsonify({"answer": "Please ask a valid question."})
 
-    result = search(question, knowledge_text)
+    # SEMANTIC SEARCH
+    result = search(question)
 
     if result:
         answer_text = format_answer(result)
@@ -95,7 +75,7 @@ def start_interview():
 
 
 # -----------------------------
-# Evaluate Answer
+# Evaluate Answer (AI Grading)
 # -----------------------------
 @app.route("/evaluate", methods=["POST"])
 def evaluate():
@@ -118,8 +98,8 @@ def evaluate():
             "model_answer": ""
         })
 
-    # Get model answer
-    result = search(question, knowledge_text)
+    # Get semantic model answer
+    result = search(question)
 
     if not result:
         return jsonify({
@@ -130,20 +110,22 @@ def evaluate():
 
     model_answer = format_answer(result)
 
-    # Semantic Similarity Scoring
+    # Semantic similarity scoring
     emb1 = model.encode(student_answer, convert_to_tensor=True)
     emb2 = model.encode(model_answer, convert_to_tensor=True)
 
     similarity = util.cos_sim(emb1, emb2).item()
     score = round(similarity * 100, 2)
 
-    # Feedback
-    if score > 75:
+    # Feedback logic
+    if score > 80:
         feedback = "Excellent answer."
-    elif score > 50:
-        feedback = "Good attempt. Improve explanation."
+    elif score > 60:
+        feedback = "Good understanding, add more details."
+    elif score > 40:
+        feedback = "Partial understanding."
     else:
-        feedback = "Needs improvement."
+        feedback = "Needs improvement. Revise the concept."
 
     return jsonify({
         "score": score,
