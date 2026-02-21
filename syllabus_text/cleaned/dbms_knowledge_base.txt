@@ -1,0 +1,526 @@
+=== SUBJECT: DBMS ===
+
+--- CONCEPT: Database ---  
+Definition:
+A database is an organized collection of logically related data stored in a structured manner so that it can be easily accessed, managed, and updated.
+
+Explanation:
+Instead of storing data in separate files, a database stores data centrally so multiple users and applications can access it simultaneously without redundancy and inconsistency.
+
+Example:
+A college database storing student details, courses, marks, and attendance.
+
+Key Points:
+- Stores related data together
+- Reduces redundancy
+- Enables multi-user access
+- Ensures consistency
+
+
+--- CONCEPT: DBMS ---
+Definition:
+A Database Management System (DBMS) is software that allows users to create, store, retrieve, and manage data in a database efficiently.
+
+Explanation:
+DBMS acts as an interface between user and database. Users never access data directly from disk; they use queries, and DBMS handles storage, indexing, concurrency and security.
+
+Example:
+MySQL, Oracle, PostgreSQL
+
+Key Points:
+- Provides abstraction
+- Controls redundancy
+- Handles concurrency
+- Provides security
+
+
+--- CONCEPT: Three Level Architecture ---
+Definition:
+Three level architecture is a DBMS design that separates database into three levels to achieve data independence.
+
+Explanation:
+It hides complexity from users and allows database modification without affecting applications.
+
+Levels:
+1. External Level — User view
+2. Conceptual Level — Logical structure
+3. Internal Level — Physical storage
+
+Example:
+Changing file storage structure without changing user queries.
+
+Key Points:
+- Improves security
+- Supports abstraction
+- Enables data independence
+
+
+--- CONCEPT: Data Independence ---
+Definition:
+Data independence is the ability to change database schema without affecting application programs.
+
+Explanation:
+Applications continue to work even if storage or structure changes.
+
+Types:
+Physical Data Independence — Change storage without affecting logical schema  
+Logical Data Independence — Change logical schema without affecting users
+
+Key Points:
+- Very important goal of DBMS
+- Reduces maintenance cost
+- Makes system scalable
+
+
+--- CONCEPT: Schema vs Instance ---
+Definition:
+Schema is the structure of database, instance is the actual data stored at a particular time.
+
+Explanation:
+Schema is permanent design, instance changes frequently.
+
+Example:
+Table structure = Schema  
+Table rows = Instance
+
+Key Points:
+- Schema rarely changes
+- Instance changes continuously
+
+
+--- CONCEPT: Super Key ---
+Definition:
+A super key is a set of one or more attributes that uniquely identifies a record in a table.
+
+Explanation:
+It may contain extra attributes but still uniquely identifies row.
+
+Example:
+Student(ID, Name, Email)
+Super keys:
+ID
+ID + Name
+ID + Email
+
+Key Points:
+- Can contain redundant attributes
+- Every candidate key is super key
+- Not minimal
+
+
+--- CONCEPT: Candidate Key ---
+Definition:
+A candidate key is a minimal super key that uniquely identifies a tuple.
+
+Explanation:
+It contains no unnecessary attributes.
+
+Example:
+Student(ID, Email)
+Both uniquely identify → candidate keys
+
+Key Points:
+- Minimal uniqueness
+- Many candidate keys possible
+
+
+--- CONCEPT: Primary Key ---
+Definition:
+A primary key is the candidate key chosen to uniquely identify records in a relation.
+
+Explanation:
+Only one primary key is selected among candidate keys.
+
+Key Points:
+- Cannot be NULL
+- Cannot be duplicate
+- Only one per table
+
+
+--- CONCEPT: Foreign Key ---
+Definition:
+A foreign key is an attribute in one table that references the primary key of another table.
+
+Explanation:
+It establishes relationship between tables and enforces referential integrity.
+
+Example:
+Student(ID)
+Enroll(StudentID)
+
+Key Points:
+- Maintains relationships
+- Prevents invalid references
+
+
+--- CONCEPT: Referential Integrity ---
+Definition:
+Referential integrity ensures that a foreign key value must exist in the referenced table.
+
+Explanation:
+Prevents orphan records.
+
+Example:
+Cannot enroll a student whose ID does not exist in Student table.
+
+Key Points:
+- Maintains consistency
+- Enforced by DBMS
+
+
+--- CONCEPT: Transaction ---
+Definition:
+A transaction is a sequence of database operations that forms a single logical unit of work.
+
+Explanation:
+A transaction groups multiple read and write operations so the database remains correct even if a crash occurs. The operations must either complete entirely or have no effect at all.
+
+Key Points:
+
+* Logical unit of execution
+* Begins with BEGIN TRANSACTION
+* Ends with COMMIT or ROLLBACK
+* Used in banking and booking systems
+* Maintains data reliability
+
+Examples:
+Transfer ₹500 from Account A to B:
+
+1. Deduct from A
+2. Add to B
+   If system crashes after step 1, rollback restores the original balance.
+
+--- CONCEPT: ACID Properties ---
+Definition:
+ACID properties guarantee reliable and safe execution of database transactions.
+
+Explanation:
+They ensure correctness of data even during system failure or concurrent access by multiple users.
+
+Key Points:
+
+* Atomicity → All or nothing
+* Consistency → Valid state maintained
+* Isolation → Transactions execute independently
+* Durability → Data persists permanently
+
+Examples:
+After ATM withdrawal confirmation, balance will not revert after restart.
+
+--- CONCEPT: Atomicity ---
+Definition:
+Atomicity ensures a transaction either fully completes or does not occur at all.
+
+Explanation:
+If any step fails, DBMS reverses all previous steps using undo mechanisms.
+
+Key Points:
+
+* Prevents partial updates
+* Implemented using logs
+* Important in financial operations
+
+Examples:
+Payment deducted but order not placed → rollback returns money.
+
+--- CONCEPT: Consistency ---
+Definition:
+Consistency ensures database moves from one valid state to another valid state.
+
+Explanation:
+All constraints and rules must remain satisfied after transaction execution.
+
+Key Points:
+
+* Enforces integrity constraints
+* Prevents invalid values
+* Ensures meaningful data
+
+Examples:
+Bank balance cannot become negative after withdrawal.
+
+--- CONCEPT: Isolation ---
+Definition:
+Isolation ensures transactions execute independently without interference.
+
+Explanation:
+Even if multiple transactions run simultaneously, each behaves as if executed alone.
+
+Key Points:
+
+* Controlled using locks
+* Prevents anomalies
+* Required for concurrency safety
+
+Examples:
+Two users booking same seat → only one booking succeeds.
+
+--- CONCEPT: Durability ---
+Definition:
+Durability ensures committed data remains permanently stored.
+
+Explanation:
+Once commit occurs, data survives crashes or power failure.
+
+Key Points:
+
+* Stored on disk
+* Uses recovery logs
+* Permanent after commit
+
+Examples:
+Money transfer remains recorded after system restart.
+
+--- CONCEPT: Concurrency Control ---
+Definition:
+Concurrency control manages simultaneous transactions without conflicts.
+
+Explanation:
+Multiple users accessing the database together may cause inconsistency. DBMS coordinates execution order to maintain correctness.
+
+Key Points:
+
+* Prevents data corruption
+* Maintains isolation
+* Uses locking protocols
+
+Examples:
+Online ticket booking handling thousands of users.
+
+--- CONCEPT: Lost Update Problem ---
+Definition:
+Occurs when two transactions update the same data and one overwrites the other.
+
+Explanation:
+Both transactions read same old value and final result ignores one update.
+
+Key Points:
+
+* Common concurrency anomaly
+* Prevented using locks
+
+Examples:
+T1 adds ₹100
+T2 adds ₹200
+Final value becomes ₹1100 instead of ₹1300
+
+--- CONCEPT: Dirty Read ---
+Definition:
+Reading uncommitted data written by another transaction.
+
+Explanation:
+If first transaction rolls back, second transaction used invalid data.
+
+Key Points:
+
+* Temporary incorrect data
+* Prevented by isolation levels
+
+Examples:
+Seeing updated balance before payment succeeds.
+
+--- CONCEPT: Two Phase Locking (2PL) ---
+Definition:
+A locking protocol that ensures serializable execution of transactions.
+
+Explanation:
+Transaction has two phases:
+
+1. Growing phase → acquire locks
+2. Shrinking phase → release locks
+
+Key Points:
+
+* Guarantees serializability
+* Prevents anomalies
+
+Examples:
+Transaction locks a record before modifying it.
+
+--- CONCEPT: SQL ---
+Definition:
+SQL (Structured Query Language) is used to communicate with relational databases.
+
+Explanation:
+SQL allows users to store, retrieve, update and delete data in tables.
+
+Key Points:
+
+* Declarative language
+* Used in MySQL, PostgreSQL, Oracle
+* Case insensitive
+
+Examples:
+SELECT * FROM Students;
+
+--- CONCEPT: DDL Commands ---
+Definition:
+Data Definition Language commands define database structure.
+
+Explanation:
+They create and modify schema objects like tables and databases.
+
+Key Points:
+
+* CREATE
+* ALTER
+* DROP
+* TRUNCATE
+
+Examples:
+CREATE TABLE Student(id INT, name VARCHAR(50));
+
+--- CONCEPT: DML Commands ---
+Definition:
+Data Manipulation Language commands modify table data.
+
+Explanation:
+They insert, update and remove records.
+
+Key Points:
+
+* INSERT
+* UPDATE
+* DELETE
+
+Examples:
+INSERT INTO Student VALUES(1,'Ravi');
+
+--- CONCEPT: DQL ---
+Definition:
+Data Query Language retrieves data from database.
+
+Explanation:
+Used for searching and filtering records.
+
+Key Points:
+
+* SELECT
+* WHERE
+* ORDER BY
+* GROUP BY
+
+Examples:
+SELECT name FROM Student WHERE id=1;
+
+--- CONCEPT: Primary Key ---
+Definition:
+A primary key uniquely identifies each record in a table.
+
+Explanation:
+No two rows can have same primary key value and it cannot be NULL.
+
+Key Points:
+
+* Unique
+* Not null
+* One per table
+
+Examples:
+Roll number in student table.
+
+--- CONCEPT: Foreign Key ---
+Definition:
+A foreign key links one table to another.
+
+Explanation:
+It maintains referential integrity between tables.
+
+Key Points:
+
+* References primary key
+* Prevents invalid references
+
+Examples:
+Student(dept_id) referencing Department(id)
+
+--- CONCEPT: Normalization ---
+Definition:
+Normalization is the process of organizing data to reduce redundancy.
+
+Explanation:
+Tables are divided into smaller tables and relationships established.
+
+Key Points:
+
+* Removes duplication
+* Improves consistency
+* Uses normal forms
+
+Examples:
+Separating student and department tables.
+
+--- CONCEPT: First Normal Form (1NF) ---
+Definition:
+Table contains only atomic values and no repeating groups.
+
+Explanation:
+Each field must contain a single value.
+
+Key Points:
+
+* No multi-valued attributes
+* Each cell single value
+
+Examples:
+Phone numbers stored in separate rows.
+
+--- CONCEPT: Second Normal Form (2NF) ---
+Definition:
+Table is in 1NF and no partial dependency exists.
+
+Explanation:
+Non-key attributes depend on entire primary key.
+
+Key Points:
+
+* Removes partial dependency
+
+Examples:
+Course name depends only on course_id, not student_id.
+
+--- CONCEPT: Third Normal Form (3NF) ---
+Definition:
+Table is in 2NF and has no transitive dependency.
+
+Explanation:
+Non-key attributes depend only on primary key.
+
+Key Points:
+
+* Removes indirect dependency
+
+Examples:
+Student table should not store department location.
+
+--- CONCEPT: Indexing ---
+Definition:
+Indexing improves data retrieval speed.
+
+Explanation:
+Creates data structure to quickly locate records without scanning full table.
+
+Key Points:
+
+* Faster SELECT queries
+* Slightly slower INSERT/UPDATE
+* Uses B-Tree or Hash
+
+Examples:
+Searching student by roll number quickly.
+
+--- CONCEPT: B-Tree Index ---
+Definition:
+Balanced tree index structure used in databases.
+
+Explanation:
+Maintains sorted data and allows logarithmic search time.
+
+Key Points:
+
+* Default index in most DBMS
+* Efficient range queries
+
+Examples:
+Searching records between id 100 and 200.
+

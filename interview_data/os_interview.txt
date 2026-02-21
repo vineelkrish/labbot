@@ -1,0 +1,331 @@
+=== SUBJECT: Operating Systems ===
+
+################################################
+CONCEPT: Operating System Basics
+################################################
+
+LEVEL: easy
+QUESTION: What is an Operating System?
+MODEL_POINTS:
+
+* interface user hardware
+* resource manager
+
+LEVEL: easy
+QUESTION: Give two goals of OS.
+MODEL_POINTS:
+
+* convenience
+* efficiency
+
+LEVEL: medium
+QUESTION: Difference between OS and Kernel?
+MODEL_POINTS:
+
+* kernel core
+* OS includes utilities
+
+LEVEL: medium
+QUESTION: What is user mode and kernel mode?
+MODEL_POINTS:
+
+* restricted vs privileged execution
+
+LEVEL: hard
+QUESTION: Why dual mode operation is necessary?
+MODEL_POINTS:
+
+* protection
+* prevent illegal instructions
+
+################################################
+CONCEPT: System Calls
+################################################
+
+LEVEL: easy
+QUESTION: What is a system call?
+MODEL_POINTS:
+
+* request OS service
+
+LEVEL: easy
+QUESTION: Give examples of system calls.
+MODEL_POINTS:
+
+* file read
+* process creation
+
+LEVEL: medium
+QUESTION: What happens during a system call?
+MODEL_POINTS:
+
+* mode switch
+* trap interrupt
+
+LEVEL: medium
+QUESTION: Why user programs cannot access hardware directly?
+MODEL_POINTS:
+
+* protection
+* controlled access
+
+################################################
+CONCEPT: Process
+################################################
+
+LEVEL: easy
+QUESTION: What is a process?
+MODEL_POINTS:
+
+* program in execution
+
+LEVEL: easy
+QUESTION: Difference between program and process?
+MODEL_POINTS:
+
+* passive vs active
+
+LEVEL: medium
+QUESTION: What is PCB?
+MODEL_POINTS:
+
+* stores process information
+
+LEVEL: medium
+QUESTION: What are process states?
+MODEL_POINTS:
+
+* ready
+* running
+* waiting
+
+LEVEL: hard
+QUESTION: Why context switching overhead affects performance?
+MODEL_POINTS:
+
+* CPU time wasted
+* cache loss
+
+################################################
+CONCEPT: Process Creation
+################################################
+
+LEVEL: easy
+QUESTION: What does fork() do?
+MODEL_POINTS:
+
+* creates child
+
+LEVEL: easy
+QUESTION: What is exec()?
+MODEL_POINTS:
+
+* replaces process memory
+
+LEVEL: medium
+QUESTION: Difference between fork and exec?
+MODEL_POINTS:
+
+* duplicate vs replace
+
+LEVEL: medium
+QUESTION: What is zombie process?
+MODEL_POINTS:
+
+* finished but entry remains
+
+LEVEL: hard
+QUESTION: Why copy-on-write improves performance?
+MODEL_POINTS:
+
+* avoids full memory copy
+
+################################################
+CONCEPT: CPU Scheduling
+################################################
+
+LEVEL: easy
+QUESTION: Why CPU scheduling required?
+MODEL_POINTS:
+
+* shared CPU
+
+LEVEL: easy
+QUESTION: What is waiting time?
+MODEL_POINTS:
+
+* ready queue time
+
+LEVEL: medium
+QUESTION: Difference preemptive vs non-preemptive?
+MODEL_POINTS:
+
+* interrupt running process
+
+LEVEL: medium
+QUESTION: What is turnaround time?
+MODEL_POINTS:
+
+* completion minus arrival
+
+LEVEL: hard
+QUESTION: Why SJF gives minimum waiting time?
+MODEL_POINTS:
+
+* short jobs reduce queue delay
+
+################################################
+CONCEPT: Synchronization
+################################################
+
+LEVEL: easy
+QUESTION: What is critical section?
+MODEL_POINTS:
+
+* shared data access
+
+LEVEL: easy
+QUESTION: What is race condition?
+MODEL_POINTS:
+
+* unpredictable result
+
+LEVEL: medium
+QUESTION: What is semaphore?
+MODEL_POINTS:
+
+* synchronization variable
+
+LEVEL: medium
+QUESTION: Binary vs counting semaphore?
+MODEL_POINTS:
+
+* lock vs resource counter
+
+LEVEL: hard
+QUESTION: Why busy waiting is bad?
+MODEL_POINTS:
+
+* wastes CPU cycles
+
+################################################
+CONCEPT: Deadlock
+################################################
+
+LEVEL: easy
+QUESTION: What is deadlock?
+MODEL_POINTS:
+
+* processes waiting forever
+
+LEVEL: easy
+QUESTION: Give real life deadlock example.
+MODEL_POINTS:
+
+* traffic intersection
+
+LEVEL: medium
+QUESTION: Four necessary conditions?
+MODEL_POINTS:
+
+* mutual exclusion
+* hold and wait
+* no preemption
+* circular wait
+
+LEVEL: medium
+QUESTION: Prevention vs avoidance?
+MODEL_POINTS:
+
+* break condition vs safe state
+
+################################################
+CONCEPT: Memory Management
+################################################
+
+LEVEL: easy
+QUESTION: What is paging?
+MODEL_POINTS:
+
+* pages and frames
+
+LEVEL: easy
+QUESTION: What is page fault?
+MODEL_POINTS:
+
+* page not in memory
+
+LEVEL: medium
+QUESTION: What is TLB?
+MODEL_POINTS:
+
+* page table cache
+
+LEVEL: medium
+QUESTION: What is virtual memory?
+MODEL_POINTS:
+
+* disk extension
+
+LEVEL: hard
+QUESTION: Why thrashing occurs?
+MODEL_POINTS:
+
+* excessive page faults
+* insufficient frames
+
+################################################
+CONCEPT: File System
+################################################
+
+LEVEL: easy
+QUESTION: What is a file?
+MODEL_POINTS:
+
+* named data
+
+LEVEL: easy
+QUESTION: What is directory?
+MODEL_POINTS:
+
+* file organization
+
+LEVEL: medium
+QUESTION: Contiguous vs indexed allocation?
+MODEL_POINTS:
+
+* fast vs flexible
+
+LEVEL: medium
+QUESTION: Why file system needed?
+MODEL_POINTS:
+
+* storage organization
+
+################################################
+CONCEPT: Disk Scheduling
+################################################
+
+LEVEL: easy
+QUESTION: Why disk scheduling needed?
+MODEL_POINTS:
+
+* reduce seek time
+
+LEVEL: easy
+QUESTION: What is seek time?
+MODEL_POINTS:
+
+* head movement time
+
+LEVEL: medium
+QUESTION: Why SSTF causes starvation?
+MODEL_POINTS:
+
+* far requests ignored
+
+LEVEL: medium
+QUESTION: Why SCAN better than FCFS?
+MODEL_POINTS:
+
+* less head movement

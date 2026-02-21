@@ -1,6 +1,6 @@
 === SUBJECT: Operating Systems ===
 
---- CONCEPT: Operating System ---
+--- CONCEPT: Operating System --- 
 Definition: An operating system is system software that acts as an interface between user applications and computer hardware, enabling the execution of programs.
 Key Points:
 - Provides an easy-to-use environment for users

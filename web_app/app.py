@@ -1,142 +1,130 @@
 from flask import Flask, render_template, request, jsonify
 import sys
 import os
-import random
-from sentence_transformers import SentenceTransformer, util
 
 # Add scripts folder to path
 sys.path.append(os.path.abspath("../scripts"))
 
-# IMPORT NEW SEMANTIC ENGINE
+# Import engines
 from semantic_engine import search, format_answer, build_vector_index
+from interview_engine import start_interview, evaluate_answer, next_question, final_result
 
 app = Flask(__name__)
 
-# Build vector database once at startup
+# Build semantic vector DB once at startup
+print("Loading knowledge base...")
 build_vector_index()
-
-# Model for interview scoring
-model = SentenceTransformer('all-MiniLM-L6-v2')
+print("Knowledge base loaded")
 
 
-# -----------------------------
-# Interview Question Bank
-# -----------------------------
-INTERVIEW_QUESTIONS = [
-    "What is an operating system?",
-    "Explain process and program difference.",
-    "What is CPU scheduling?",
-    "What is deadlock?",
-    "Explain paging in memory management."
-]
-
-
-# -----------------------------
-# Home Page
-# -----------------------------
+# ================= HOME =================
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# -----------------------------
-# Ask Question (Semantic AI)
-# -----------------------------
+# ================= ASK (LEARNING MODE) =================
 @app.route("/ask", methods=["POST"])
 def ask():
-    data = request.get_json(silent=True)
+    try:
+        data = request.get_json(silent=True)
 
-    if not data:
-        return jsonify({"answer": "Invalid request"}), 400
+        if not data or "question" not in data:
+            return jsonify({"answer": "Invalid request."})
 
-    question = data.get("question", "").strip()
+        question = data.get("question", "").strip()
 
-    if question == "":
-        return jsonify({"answer": "Please ask a valid question."})
+        if question == "":
+            return jsonify({"answer": "Please ask a valid question."})
 
-    # SEMANTIC SEARCH
-    result = search(question)
+        result, subject = search(question)
 
-    if result:
-        answer_text = format_answer(result)
-    else:
-        answer_text = "This topic is outside the current syllabus."
+        if result:
+            answer_text = format_answer(result)
+            answer_text = f"[From {subject.upper()}]\n" + answer_text
+        else:
+            answer_text = "This topic is outside the current syllabus."
 
-    return jsonify({"answer": answer_text})
+        return jsonify({"answer": answer_text})
+
+    except Exception as e:
+        print("ASK ERROR:", e)
+        return jsonify({"answer": "Internal error occurred while answering."})
 
 
-# -----------------------------
-# Interview Mode
-# -----------------------------
+# ================= START INTERVIEW =================
 @app.route("/start_interview", methods=["GET"])
-def start_interview():
-    question = random.choice(INTERVIEW_QUESTIONS)
-    return jsonify({"question": question})
+def start_interview_route():
+    try:
+        question = start_interview()
+
+        if question is None:
+            return jsonify({"question": None})
+
+        return jsonify({"question": question})
+
+    except Exception as e:
+        print("INTERVIEW START ERROR:", e)
+        return jsonify({"question": None})
 
 
-# -----------------------------
-# Evaluate Answer (AI Grading)
-# -----------------------------
+# ================= EVALUATE ANSWER =================
 @app.route("/evaluate", methods=["POST"])
 def evaluate():
-    data = request.get_json(silent=True)
+    try:
+        data = request.get_json(silent=True)
 
-    if not data:
+        if not data or "answer" not in data:
+            return jsonify({
+                "score": 0,
+                "feedback": "Invalid answer.",
+                "next": None,
+                "final_score": 0,
+                "strong": [],
+                "weak": []
+            })
+
+        student_answer = data.get("answer", "").strip()
+
+        # Evaluate current answer
+        score, feedback = evaluate_answer(student_answer)
+
+        # Get next question
+        next_q = next_question()
+
+        # ================= INTERVIEW FINISHED =================
+        if next_q is None:
+            final = final_result()
+
+            return jsonify({
+                "score": score,
+                "feedback": feedback,
+                "next": None,
+                "final_score": final["score"],
+                "strong": final["strong"],
+                "weak": final["weak"]
+            })
+
+        # ================= CONTINUE INTERVIEW =================
         return jsonify({
-            "score": 0,
-            "feedback": "Invalid answer submission.",
-            "model_answer": ""
+            "score": score,
+            "feedback": feedback,
+            "next": next_q
         })
 
-    question = data.get("question", "").strip()
-    student_answer = data.get("answer", "").strip()
-
-    if student_answer == "":
+    except Exception as e:
+        print("EVALUATE ERROR:", e)
         return jsonify({
             "score": 0,
-            "feedback": "You did not provide an answer.",
-            "model_answer": ""
+            "feedback": "Internal evaluation error.",
+            "next": None,
+            "final_score": 0,
+            "strong": [],
+            "weak": []
         })
 
-    # Get semantic model answer
-    result = search(question)
 
-    if not result:
-        return jsonify({
-            "score": 0,
-            "feedback": "Model answer not found in syllabus.",
-            "model_answer": ""
-        })
-
-    model_answer = format_answer(result)
-
-    # Semantic similarity scoring
-    emb1 = model.encode(student_answer, convert_to_tensor=True)
-    emb2 = model.encode(model_answer, convert_to_tensor=True)
-
-    similarity = util.cos_sim(emb1, emb2).item()
-    score = round(similarity * 100, 2)
-
-    # Feedback logic
-    if score > 80:
-        feedback = "Excellent answer."
-    elif score > 60:
-        feedback = "Good understanding, add more details."
-    elif score > 40:
-        feedback = "Partial understanding."
-    else:
-        feedback = "Needs improvement. Revise the concept."
-
-    return jsonify({
-        "score": score,
-        "feedback": feedback,
-        "model_answer": model_answer
-    })
-
-
-# -----------------------------
-# Run Server
-# -----------------------------
+# ================= RUN =================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, threaded=True, debug=False)

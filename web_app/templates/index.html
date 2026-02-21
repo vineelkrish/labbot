@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -11,203 +12,398 @@
 
 <div class="app">
 
-    <div class="header">
-        <div class="logo">🤖 LabBot</div>
-        <div class="status">AI Academic Assistant</div>
+<div class="header">
+    <div class="logo">🤖 LabBot</div>
+
+    <div class="nav-modes">
+        <button id="learnModeBtn" class="mode-btn active" onclick="switchMode('learn')">📘 Learning</button>
+        <button id="interviewModeBtn" class="mode-btn" onclick="switchMode('interview')">🎓 Interview</button>
     </div>
 
-    <div class="chat-container" id="chatBox">
-        <div class="welcome">
-            <div class="ai-avatar">🤖</div>
-            <div class="welcome-text">
-                Hello! I am LabBot.<br>
-                Ask me anything from Operating Systems.
-            </div>
+    <div class="status">
+        <span id="modeStatus">Learning Mode</span>
+        <span id="timer" style="margin-left:12px; display:none;">⏱ 05:00</span>
+    </div>
+</div>
+
+
+<!-- FIX: chat stays INSIDE app -->
+<div class="chat-container" id="chatBox">
+    <div class="welcome">
+        <div class="ai-avatar">🤖</div>
+        <div class="welcome-text">
+            Tap anywhere once to enable voice 🔊<br>
+            Then ask anything from your syllabus.
         </div>
     </div>
+</div>
 
-    <div class="input-panel">
-        <button class="mic-btn" onclick="startVoice()">🎤</button>
 
-        <input id="questionInput" placeholder="Ask anything from Operating Systems..." autocomplete="off">
-
-        <button id="askBtn" class="send-btn" onclick="askQuestion()">Ask</button>
-        <button class="interview-btn" onclick="startInterview()">Interview</button>
-    </div>
+<div class="input-panel">
+    <button class="mic-btn" onclick="startVoice()">🎤</button>
+    <input id="questionInput" placeholder="Ask a concept..." autocomplete="off">
+    <button id="askBtn" class="send-btn" onclick="askQuestion()">Ask</button>
+</div>
 
 </div>
+
 <div class="bg-glow"></div>
 
 <script>
-let interviewActive = false;
-let currentInterviewQuestion = "";
 
-// ---------- ASK QUESTION ----------
-async function askQuestion() {
+let currentMode="learn";
+let interviewActive=false;
 
-    const input = document.getElementById("questionInput");
-    const text = input.value.trim();
-    if (!text) return;
+let voiceUnlocked = false;
+let selectedVoice = null;
+let speaking = false;
 
-    addMessage(text, "user");
-    input.value = "";
+let interviewTimer = null;
+let remainingTime = 300; // 5 minutes
+function finishInterview(finalScore=null){
 
-    try {
+    interviewActive = false;
+    currentMode = "learn";
 
-        if (interviewActive) {
-            await submitInterviewAnswer(text);
+    stopInterviewTimer();
+    setModeLock(false);
+
+    /* -------- RESTORE BUTTON STATES -------- */
+    const learnBtn = document.getElementById("learnModeBtn");
+    const interviewBtn = document.getElementById("interviewModeBtn");
+
+    learnBtn.classList.add("active");
+    interviewBtn.classList.remove("active");
+
+    learnBtn.disabled = false;
+    learnBtn.style.opacity = "1";
+    learnBtn.style.cursor = "pointer";
+
+    /* -------- UI TEXT RESET -------- */
+    document.getElementById("modeStatus").innerText="Learning Mode";
+    document.getElementById("askBtn").innerText="Ask";
+    document.getElementById("questionInput").placeholder="Ask a concept...";
+
+    if(finalScore!==null)
+        addMessage(`🏁 Interview Finished | Score: ${finalScore}%`,"bot");
+    else
+        addMessage("🏁 Interview Finished","bot");
+}
+function setModeLock(lock){
+
+    const learnBtn = document.getElementById("learnModeBtn");
+
+    if(lock){
+        learnBtn.disabled = true;
+        learnBtn.style.opacity = "0.5";
+        learnBtn.style.cursor = "not-allowed";
+    }
+    else{
+        learnBtn.disabled = false;
+        learnBtn.style.opacity = "1";
+        learnBtn.style.cursor = "pointer";
+    }
+}
+
+/* ================= INTERVIEW TIMER ================= */
+
+function startInterviewTimer(){
+
+    remainingTime = 90;
+    document.getElementById("timer").style.display = "inline";
+
+    updateTimerUI();
+
+    interviewTimer = setInterval(()=>{
+        remainingTime--;
+
+        updateTimerUI();
+
+        if(remainingTime <= 0){
+            clearInterval(interviewTimer);
+            endInterviewByTime();
+        }
+
+    },1000);
+}
+
+function updateTimerUI(){
+    const min = String(Math.floor(remainingTime/60)).padStart(2,'0');
+    const sec = String(remainingTime%60).padStart(2,'0');
+    document.getElementById("timer").innerText = `⏱ ${min}:${sec}`;
+}
+
+function stopInterviewTimer(){
+    clearInterval(interviewTimer);
+    document.getElementById("timer").style.display = "none";
+}
+/* ---------------- MODE SWITCH ---------------- */
+
+function switchMode(mode){
+
+    if(mode===currentMode) return;
+
+    document.getElementById("learnModeBtn").classList.toggle("active",mode==="learn");
+    document.getElementById("interviewModeBtn").classList.toggle("active",mode==="interview");
+
+    if(mode==="learn"){
+    enterLearningMode();
+    }
+    else{
+    if(interviewActive) return;
+    enterInterviewMode();
+    }
+    currentMode=mode;
+}
+
+function unlockVoice(){
+
+    if(!window.speechSynthesis) return;
+
+    // load voices
+    speechSynthesis.getVoices();
+
+    // dummy speak to activate audio permission
+    const dummy = new SpeechSynthesisUtterance("");
+    speechSynthesis.speak(dummy);
+    speechSynthesis.cancel();
+
+    setTimeout(()=>{
+        const voices = speechSynthesis.getVoices();
+        selectedVoice =
+            voices.find(v=>v.lang.includes("en-IN")) ||
+            voices.find(v=>v.lang.includes("en-US")) ||
+            voices[0];
+
+        voiceUnlocked = true;
+        console.log("Voice Ready");
+    },120);
+}
+/* ---------------- ASK ---------------- */
+
+async function askQuestion(){
+
+    const input=document.getElementById("questionInput");
+    const text=input.value.trim();
+    if(!text) return;
+
+    addMessage(text,"user");
+    input.value="";
+
+    /* INTERVIEW MODE */
+    if(currentMode==="interview" && interviewActive){
+        await submitInterviewAnswer(text);
+        return;
+    }
+
+    try{
+        showTyping();
+
+        const res=await fetch("/ask",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({question:text})
+        });
+
+        if(!res.ok){
+            throw new Error("Server returned "+res.status);
+        }
+
+        const data=await res.json();
+
+        removeTyping();
+
+        if(!data || !data.answer){
+            addMessage("⚠ No answer received from server","bot");
             return;
         }
 
-        showTyping();
+        addBotConcept(data.answer);
+        speakAnswer(cleanForSpeech(data.answer));
 
-        const res = await fetch("/ask", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({question: text})
-        });
-
-        if (!res.ok) throw new Error("Server error");
-
-        const data = await res.json();
-
+    }catch(err){
+        console.error("ASK ERROR:",err);
         removeTyping();
-        addMessage(data.answer, "bot");
-        safeSpeak(data.answer);
-
-    } catch (err) {
-        console.error(err);
-        removeTyping();
-        addMessage("⚠ Server not responding. Check backend.", "bot");
+        addMessage("⚠ Server not responding. Please retry.","bot");
     }
 }
+/* ---------------- CLEAN SPEECH ---------------- */
 
+function cleanForSpeech(text){
+    return text
+        .replace(/\[From.*?\]/gi,"")
+        .replace(/\[.*?LEVEL.*?\]/gi,"")
+        .replace(/•/g,"")
+        .trim();
+}
 
-// ---------- INTERVIEW ----------
-async function startInterview(){
-    try{
-        const res = await fetch("/start_interview");
-        const data = await res.json();
+/* ---------------- INTERVIEW ---------------- */
 
-        interviewActive = true;
-        currentInterviewQuestion = data.question;
+async function enterInterviewMode(){
+    if(interviewActive) return;
+    const res=await fetch("/start_interview");
+    const data=await res.json();
 
-        document.getElementById("askBtn").innerText="Submit";
-        addMessage("🎓 "+data.question,"bot");
-
-    }catch(e){
-        console.error(e);
-        addMessage("⚠ Interview mode failed", "bot");
+    if(!data.question){
+        addMessage("No interview questions available","bot");
+        return;
     }
+
+    interviewActive=true;
+
+    document.getElementById("modeStatus").innerText="Interview Mode";
+    document.getElementById("askBtn").innerText="Submit";
+    document.getElementById("questionInput").placeholder="Type your answer...";
+
+    addMessage("🎓 Interview Started","bot");
+    addMessage(data.question,"bot");
+    setModeLock(true);
+    startInterviewTimer();
 }
 
 async function submitInterviewAnswer(answer){
-    try{
-        showTyping();
 
-        const res = await fetch("/evaluate",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({question:currentInterviewQuestion,answer})
-        });
+    showTyping();
 
-        if(!res.ok) throw new Error("Evaluation failed");
-
-        const data = await res.json();
-        removeTyping();
-
-        addCard(data.score,data.feedback,data.model_answer);
-        safeSpeak("Score "+data.score+" percent. "+data.feedback);
-
-        interviewActive=false;
-        document.getElementById("askBtn").innerText="Ask";
-
-    }catch(e){
-        console.error(e);
-        removeTyping();
-        addMessage("⚠ Evaluation failed", "bot");
-    }
-}
-
-
-// ---------- CHAT UI ----------
-function addMessage(text,type){
-    const chat=document.getElementById("chatBox");
-
-    const wrapper=document.createElement("div");
-    wrapper.className="msg-wrapper "+type;
-
-    const msg=document.createElement("div");
-    msg.className="msg "+type;
-
-    if(type==="bot"){
-        msg.innerHTML=formatAI(text);
-    }else{
-        msg.textContent=text;
-    }
-
-    const time=document.createElement("div");
-    time.className="msg-time";
-    time.innerText=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
-    wrapper.appendChild(msg);
-    wrapper.appendChild(time);
-    chat.appendChild(wrapper);
-
-    chat.scrollTop=chat.scrollHeight;
-}
-
-function formatAI(text){
-
-    text=text.replace(/CONCEPT:?/gi,"");
-    text=text.replace(/Definition:?/gi,"");
-
-    let sentences=text.split(/\. |\n/);
-
-    let html="";
-
-    sentences.forEach((s,i)=>{
-        s=s.trim();
-        if(!s) return;
-
-        if(i===0){
-            html+=`<div class="ai-heading">${s}</div>`;
-        }
-        else{
-            html+=`<div class="ai-line">${s}</div>`;
-        }
+    const res=await fetch("/evaluate",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({answer})
     });
 
-    return html;
-}
+    const data=await res.json();
 
-function addCard(score,feedback,answer){
+    removeTyping();
+
+    addMessage(`Score: ${data.score}%\n${data.feedback}`,"bot");
+
+    if(data.next){
+        addMessage(data.next,"bot");
+    }
+    else{
+        finishInterview(data.final_score);
+    }
+}
+/* ---------------- LEARNING MODE ---------------- */
+
+function enterLearningMode(){
+
+    if(interviewActive){
+        addMessage("⏳ Finish interview first","bot");
+        return;
+    }
+
+    currentMode="learn";
+    setModeLock(false);
+
+    document.getElementById("modeStatus").innerText="Learning Mode";
+    document.getElementById("askBtn").innerText="Ask";
+    document.getElementById("questionInput").placeholder="Ask a concept...";
+
+    addMessage("📘 Learning Mode","bot");
+}
+/* ---------------- VOICE ---------------- */
+
+document.body.addEventListener("click",()=>{
+    const voices=speechSynthesis.getVoices();
+    selectedVoice=voices.find(v=>v.lang.includes("en-IN")) || voices[0];
+},{once:true});
+
+
+function speakAnswer(text){
+
+    if(!voiceUnlocked) return;
+
+    text = cleanForSpeech(text);
+
+    function speakNow(){
+
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.voice = selectedVoice || speechSynthesis.getVoices()[0];
+        utter.rate = 1;
+        utter.pitch = 1;
+        utter.volume = 1;
+
+        speaking = true;
+
+        utter.onend = ()=> speaking=false;
+        utter.onerror = ()=> speaking=false;
+
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utter);
+    }
+
+    setTimeout(()=>{
+        if(speechSynthesis.getVoices().length===0){
+            speechSynthesis.onvoiceschanged = ()=> speakNow();
+        }else{
+            speakNow();
+        }
+    },120);
+}
+/* ---------------- UI ---------------- */
+
+function addMessage(text,type){
     const chat=document.getElementById("chatBox");
-    const card=document.createElement("div");
-    card.className="result-card";
-    card.innerHTML=`
-        <div class="score">${score}%</div>
-        <div class="feedback">${feedback}</div>
-        <div class="model">${answer}</div>`;
-    chat.appendChild(card);
+    const wrapper=document.createElement("div");
+    wrapper.className="msg-wrapper "+type;
+    const msg=document.createElement("div");
+    msg.className="msg "+type;
+    msg.textContent=text;
+    wrapper.appendChild(msg);
+    chat.appendChild(wrapper);
     chat.scrollTop=chat.scrollHeight;
 }
+function addBotConcept(text){
 
-function showTyping(){
-    removeTyping();
     const chat=document.getElementById("chatBox");
 
+    let subject="GENERAL";
+    let subjectMatch=text.match(/\[From (.*?)\]/i);
+    if(subjectMatch){
+        subject=subjectMatch[1];
+        text=text.replace(subjectMatch[0],"").trim();
+    }
+
+    const wrapper=document.createElement("div");
+    wrapper.className="msg-wrapper bot";
+
+    const card=document.createElement("div");
+    card.className="msg bot concept-card";
+
+    let lines=text.split("\n").filter(l=>l.trim()!=="");
+
+    let title=lines.shift() || "";
+    let definition=lines.shift() || "";
+    let points=lines;
+
+    let html=`
+        <div class="subject-badge">${subject}</div>
+        <div class="concept-title">${title}</div>
+        <div class="concept-def">${definition}</div>
+    `;
+
+    if(points.length){
+        html+=`<div class="concept-points">`;
+        points.forEach(p=>{
+            html+=`<div class="point">• ${p}</div>`;
+        });
+        html+=`</div>`;
+    }
+
+    card.innerHTML=html;
+
+    wrapper.appendChild(card);
+    chat.appendChild(wrapper);
+    chat.scrollTop=chat.scrollHeight;
+}
+function showTyping(){
+    removeTyping();
     const div=document.createElement("div");
     div.id="typing";
     div.className="typing-bubble";
-    div.innerHTML=`
-        <span></span>
-        <span></span>
-        <span></span>
-    `;
-
-    chat.appendChild(div);
-    chat.scrollTop=chat.scrollHeight;
+    div.innerHTML=`<span></span><span></span><span></span>`;
+    document.getElementById("chatBox").appendChild(div);
 }
 
 function removeTyping(){
@@ -215,32 +411,12 @@ function removeTyping(){
     if(t) t.remove();
 }
 
+/* ---------------- MIC ---------------- */
 
-// ---------- SAFE SPEECH ----------
-function safeSpeak(text){
-    try{
-        if(!window.speechSynthesis) return;
-
-        window.speechSynthesis.cancel();
-
-        const speech=new SpeechSynthesisUtterance(text);
-        speech.rate=1;
-        speech.pitch=1;
-
-        speech.onerror=()=>console.log("Speech blocked");
-
-        window.speechSynthesis.speak(speech);
-
-    }catch(e){
-        console.log("Speech failed");
-    }
-}
-
-
-// ---------- VOICE INPUT ----------
 function startVoice(){
+
     if(!('webkitSpeechRecognition' in window)){
-        alert("Voice not supported in this browser");
+        alert("Voice not supported");
         return;
     }
 
@@ -253,14 +429,31 @@ function startVoice(){
 
     rec.onresult=e=>{
         document.getElementById("questionInput").value=e.results[0][0].transcript;
-        mic.classList.remove("recording");
     };
 
     rec.onend=()=>mic.classList.remove("recording");
+    rec.onerror=()=>mic.classList.remove("recording");
 }
 
-</script>
+async function endInterviewByTime(){
 
+    addMessage("⏰ Time is up! Finishing interview...","bot");
+
+    try{
+        const res = await fetch("/evaluate",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({answer:""})
+        });
+
+        const data = await res.json();
+        finishInterview(data.final_score);
+
+    }catch(e){
+        finishInterview();
+    }
+}document.body.addEventListener("click", unlockVoice, { once:true });
+</script>
 
 </body>
 </html>

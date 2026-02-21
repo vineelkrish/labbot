@@ -1,0 +1,363 @@
+=== SUBJECT: Computer Networks ===
+
+--- CONCEPT: IP Addressing ---  
+Definition: IP addressing uniquely identifies devices in a network using logical numerical addresses.
+Key Points:
+- Class A range: 1–126 (default mask 255.0.0.0)
+- Class B range: 128–191 (default mask 255.255.0.0)
+- Class C range: 192–223 (default mask 255.255.255.0)
+- Class D used for multicast
+- Class E reserved for research
+- Loopback address: 127.x.x.x
+- Private ranges:
+  - 10.0.0.0 – 10.255.255.255
+  - 172.16.0.0 – 172.31.255.255
+  - 192.168.0.0 – 192.168.255.255
+
+
+--- CONCEPT: Types of Communication ---
+Definition: Data transmission methods based on number of receivers.
+Key Points:
+- Unicast → one to one communication
+- Broadcast → one to all communication
+- Multicast → one to many communication
+
+
+--- CONCEPT: CIDR ---
+Definition: Classless Inter Domain Routing allows efficient allocation of IP addresses.
+Rules:
+- Addresses must be contiguous
+- Block size must be power of 2
+- First address divisible by block size
+
+
+--- CONCEPT: Supernetting ---
+Definition: Combining multiple smaller networks into a larger network.
+Advantages:
+- Reduces routing table size
+- Faster packet processing
+- Flexible IP allocation
+Rules:
+- Networks must be contiguous
+- Number of networks must be power of 2
+
+
+--- CONCEPT: Error Detection and Correction ---
+Definition: Techniques used to identify and fix errors during data transmission.
+Key Points:
+- Burst errors more common than single bit errors
+- Detection methods: parity, checksum, CRC
+- Correction method: Hamming code
+
+
+--- CONCEPT: Hamming Distance ---
+Definition: Number of differing bits between two binary strings.
+Key Points:
+- Detection: minimum distance = d+1
+- Correction: minimum distance = 2d+1
+
+
+--- CONCEPT: CRC ---
+Definition: Cyclic Redundancy Check detects transmission errors using polynomial division.
+Key Points:
+- Append k−1 zeros
+- Perform modulo-2 division
+- Remainder is CRC
+- Detects single bit and burst errors
+
+
+--- CONCEPT: Flow Control Protocols ---
+Definition: Techniques that regulate data transmission speed.
+Protocols:
+- Stop and Wait
+- Go Back N
+- Selective Repeat
+
+
+--- CONCEPT: Sliding Window ---
+Definition: Sender transmits multiple frames before receiving acknowledgment.
+Key Points:
+- Improves link utilization
+- Used in GBN and SR protocols
+
+
+--- CONCEPT: Go Back N Protocol ---
+Definition: Sender retransmits all frames after an error.
+Key Points:
+- Receiver window size = 1
+- Uses cumulative ACK
+
+
+--- CONCEPT: Selective Repeat Protocol ---
+Definition: Only erroneous frames are retransmitted.
+Key Points:
+- Sender window = receiver window
+- Uses individual ACK
+- Higher efficiency than GBN
+
+
+--- CONCEPT: IPv4 Header ---
+Definition: IPv4 packet structure containing routing and delivery information.
+Fields:
+- Version
+- Header length
+- TTL prevents infinite looping
+- Protocol identifies upper layer protocol
+- Fragment offset used in fragmentation
+
+
+--- CONCEPT: TCP Protocol ---
+Definition: Reliable connection oriented transport protocol.
+Key Points:
+- Three way handshake
+- Ordered delivery
+- Error control and flow control
+- Full duplex communication
+- Uses sequence numbers
+
+
+--- CONCEPT: UDP Protocol ---
+Definition: Fast connectionless transport protocol.
+Key Points:
+- No reliability
+- No congestion control
+- Header size 8 bytes
+- Used in streaming and DNS
+
+
+--- CONCEPT: Congestion Control ---
+Definition: Prevents network overload.
+Methods:
+- Slow start
+- Congestion avoidance
+- Timeout detection
+
+
+--- CONCEPT: ARP ---
+Definition: Maps IP address to MAC address.
+Key Points:
+- Request broadcast
+- Reply unicast
+
+
+--- CONCEPT: ICMP ---
+Definition: Reports errors and diagnostics in network.
+Key Points:
+- Echo request and reply
+- Destination unreachable
+- Time exceeded
+
+
+--- CONCEPT: Switching Techniques ---
+Definition: Methods used to transfer data across networks.
+Types:
+- Circuit switching: dedicated path
+- Packet switching: dynamic path
+
+
+--- CONCEPT: Routing Algorithms ---
+Definition: Determines path selection between networks.
+Types:
+- Distance Vector (Bellman Ford, RIP)
+- Link State (Dijkstra, OSPF)
+
+
+--- CONCEPT: SMTP ---
+Definition: Sends emails between mail servers.
+Key Points:
+- Port 25
+- Push protocol
+- Uses TCP
+
+
+--- CONCEPT: POP3 ---
+Definition: Retrieves email by downloading from server.
+Key Points:
+- Port 110
+- Pull protocol
+
+
+--- CONCEPT: IMAP ---
+Definition: Synchronizes email with server.
+Key Points:
+- Port 143
+- Allows partial download
+- Mail stored on server
+
+
+--- CONCEPT: FTP ---
+Definition: Transfers files between computers.
+Key Points:
+- Port 20 data
+- Port 21 control
+- Separate connections
+
+
+--- CONCEPT: HTTP ---
+Definition: Transfers web pages between client and server.
+Key Points:
+- Port 80
+- Stateless protocol
+- Persistent and non persistent modes
+
+
+--- CONCEPT: OSI Model ---
+Definition: Seven layer conceptual networking architecture.
+Layers:
+- Physical
+- Data Link
+- Network
+- Transport
+- Session
+- Presentation
+- Application
+
+
+--- CONCEPT: TCP/IP Model ---
+Definition: Practical implementation of networking layers.
+Layers:
+- Application
+- Transport
+- Network
+- Data Link
+- Physical
+
+--- CONCEPT: OSI Model ---
+Definition: The OSI (Open Systems Interconnection) model is a seven-layer architecture used to standardize communication between different computer systems.
+
+Layers:
+1. Physical Layer
+2. Data Link Layer
+3. Network Layer
+4. Transport Layer
+5. Session Layer
+6. Presentation Layer
+7. Application Layer
+
+
+--- CONCEPT: Physical Layer ---
+Definition: Responsible for transmission of raw bits over physical medium.
+Functions:
+- Bit transmission
+- Signal encoding and decoding
+- Bit synchronization
+- Data rate control
+- Transmission mode (simplex, half duplex, full duplex)
+- Physical topology (bus, star, mesh, tree)
+- Electrical and mechanical specifications
+
+
+--- CONCEPT: Data Link Layer ---
+Definition: Responsible for reliable node-to-node delivery of frames.
+Functions:
+- Framing
+- Error detection and correction
+- Flow control
+- Physical addressing (MAC)
+- Access control to shared medium
+
+
+--- CONCEPT: Network Layer ---
+Definition: Responsible for packet delivery from source to destination across networks.
+Functions:
+- Logical addressing (IP addressing)
+- Routing and path determination
+- Packet forwarding
+- Fragmentation
+- Congestion control
+
+
+--- CONCEPT: Transport Layer ---
+Definition: Responsible for end-to-end communication between processes.
+Functions:
+- Segmentation and reassembly
+- End to end connection
+- Flow control
+- Error control
+- Congestion control
+- Port addressing (process to process communication)
+
+
+--- CONCEPT: Session Layer ---
+Definition: Manages dialog between two communicating systems.
+Functions:
+- Session establishment and termination
+- Authentication and authorization
+- Synchronization checkpoints
+- Dialog control (half/full duplex management)
+
+
+--- CONCEPT: Presentation Layer ---
+Definition: Translates data between application format and network format.
+Functions:
+- Data translation
+- Encryption and decryption
+- Compression and decompression
+
+
+--- CONCEPT: Application Layer ---
+Definition: Provides services directly to the user applications.
+Functions:
+- Email services
+- File transfer
+- Web access
+- Network management
+Protocols:
+- HTTP
+- FTP
+- SMTP
+- DNS
+
+
+--- CONCEPT: TCP/IP Model ---
+Definition: Practical networking architecture used in real networks.
+
+Layers and Functions:
+
+Application Layer:
+- Provides network services to applications
+- Protocols: HTTP, FTP, SMTP, DNS
+
+Transport Layer:
+- End to end communication
+- Protocols: TCP, UDP
+
+Internet Layer:
+- Logical addressing and routing
+- Protocols: IP, ICMP, ARP
+
+Network Access Layer:
+- Physical transmission and framing
+
+--- CONCEPT: TCP vs UDP ---
+Definition: Comparison between TCP and UDP transport protocols.
+Differences:
+- TCP is connection oriented, UDP is connectionless
+- TCP reliable, UDP unreliable
+- TCP ordered delivery, UDP unordered delivery
+- TCP header 20-60 bytes, UDP header 8 bytes
+- TCP used for HTTP/FTP, UDP used for streaming/DNS
+
+--- CONCEPT: Stop and Wait Efficiency ---
+Definition: Efficiency of stop and wait protocol.
+Formula:
+Efficiency = Useful time / Total time
+η = Td / (Td + 2Pd + TACK)
+
+--- CONCEPT: Why UDP used in streaming ---
+Explanation:
+- Low latency required
+- Retransmission not acceptable
+- Real time delivery more important than reliability
+
+--- CONCEPT: TCP Three Way Handshake ---
+Steps:
+1. Client sends SYN
+2. Server replies SYN-ACK
+3. Client sends ACK
+Connection established
+
+--- CONCEPT: Advantages of Packet Switching ---
+- No bandwidth wastage
+- Supports multiple users
+- Efficient for burst traffic
