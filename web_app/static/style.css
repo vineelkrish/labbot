@@ -389,3 +389,118 @@ input::placeholder{color:#94a3b8}
     font-size:16px;
     line-height:1.6;
 }
+/* ================= ROBOT ASSISTANT ================= */
+
+#labbot-robot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+}
+
+#robot-avatar {
+    width: 110px;
+    transition: transform 0.2s ease;
+}
+
+#robot-bubble {
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    max-width: 200px;
+    text-align: center;
+}
+
+.robot-speaking {
+    animation: robotBounce 0.4s infinite alternate;
+}
+
+@keyframes robotBounce {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-6px); }
+}
+
+/* ================= AI ROBOT ASSISTANT ================= */
+
+#ai-assistant {
+    position: fixed;
+    bottom: 60px;
+    right: 60px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Background glow */
+#ai-assistant::before {
+    content: "";
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(0,255,255,0.2) 0%, transparent 70%);
+    z-index: -1;
+}
+
+/* Robot image */
+#ai-robot {
+    width: 300px;
+    animation: floatIdle 6s ease-in-out infinite,
+               breatheGlow 4s ease-in-out infinite;
+    transition: transform 0.2s ease;
+}
+
+/* Slow calm floating */
+@keyframes floatIdle {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Premium breathing glow */
+@keyframes breatheGlow {
+    0% {
+        filter: drop-shadow(0 0 10px rgba(0,255,255,0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 28px rgba(0,255,255,0.8));
+    }
+    100% {
+        filter: drop-shadow(0 0 10px rgba(0,255,255,0.4));
+    }
+}
+
+/* Speaking pulse */
+.ai-speaking #ai-robot {
+    animation: speakPulse 0.4s infinite alternate;
+}
+
+@keyframes speakPulse {
+    from { transform: translateY(-6px) scale(1); }
+    to { transform: translateY(-10px) scale(1.03); }
+}
+
+/* Speech bubble */
+#ai-bubble {
+    background: rgba(0, 30, 50, 0.75);
+    backdrop-filter: blur(8px);
+    color: #00ffff;
+    padding: 16px 20px;
+    border-radius: 22px;
+    max-width: 380px;
+    font-size: 15px;
+    margin-bottom: 18px;
+    box-shadow: 0 0 25px rgba(0,255,255,0.4);
+    line-height: 1.6;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}

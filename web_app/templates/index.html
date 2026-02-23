@@ -30,10 +30,8 @@
 <!-- FIX: chat stays INSIDE app -->
 <div class="chat-container" id="chatBox">
     <div class="welcome">
-        <div class="ai-avatar">🤖</div>
+        <div class="ai-avatar"></div>
         <div class="welcome-text">
-            Tap anywhere once to enable voice 🔊<br>
-            Then ask anything from your syllabus.
         </div>
     </div>
 </div>
@@ -316,6 +314,10 @@ function speakAnswer(text){
 
     text = cleanForSpeech(text);
 
+    const assistant = document.getElementById("ai-assistant");
+    const robot = document.getElementById("ai-robot");
+    const bubble = document.getElementById("ai-bubble");
+
     function speakNow(){
 
         const utter = new SpeechSynthesisUtterance(text);
@@ -326,8 +328,36 @@ function speakAnswer(text){
 
         speaking = true;
 
-        utter.onend = ()=> speaking=false;
-        utter.onerror = ()=> speaking=false;
+        // Show assistant
+        assistant.style.display = "flex";
+        assistant.style.transform = "translateY(20px)";
+        setTimeout(() => {
+            assistant.style.opacity = "1";
+            assistant.style.transform = "translateY(0)";
+        }, 50);
+
+        bubble.innerText = text.slice(0, 90) + "...";
+        bubble.style.opacity = "1";
+
+        assistant.classList.add("ai-speaking");
+
+        utter.onend = ()=>{
+            speaking = false;
+            assistant.classList.remove("ai-speaking");
+
+            setTimeout(()=>{
+                bubble.style.opacity = "0";
+                assistant.style.opacity = "0";
+                setTimeout(()=>{
+                    assistant.style.display = "none";
+                },400);
+            },800);
+        };
+
+        utter.onerror = ()=>{
+            speaking = false;
+            assistant.classList.remove("ai-speaking");
+        };
 
         speechSynthesis.cancel();
         speechSynthesis.speak(utter);
@@ -454,6 +484,10 @@ async function endInterviewByTime(){
     }
 }document.body.addEventListener("click", unlockVoice, { once:true });
 </script>
-
+<!-- 🤖 LabBot Assistant -->
+<div id="ai-assistant">
+    <img src="{{ url_for('static', filename='robo.png') }}" id="ai-robot">
+    <div id="ai-bubble"></div>
+</div>
 </body>
 </html>
