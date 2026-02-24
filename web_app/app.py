@@ -1,7 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 import sys
 import os
-
+import cv2
+import threading
+import time
+presence_state = True
+camera_running = False
 # Add scripts folder to path
 sys.path.append(os.path.abspath("../scripts"))
 
@@ -16,7 +20,32 @@ print("Loading knowledge base...")
 build_vector_index()
 print("Knowledge base loaded")
 
+def camera_presence_loop():
+    global presence_state, camera_running
 
+    cap = cv2.VideoCapture(0)
+    face_cascade = cv2.CascadeClassifier(
+        cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+    )
+
+    camera_running = True
+
+    while camera_running:
+        ret, frame = cap.read()
+        if not ret:
+            continue
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+        if len(faces) > 0:
+            presence_state = True
+        else:
+            presence_state = False
+
+        time.sleep(1)  # Check every 1 second
+
+    cap.release()
 # ================= HOME =================
 @app.route("/")
 def home():
@@ -123,8 +152,12 @@ def evaluate():
             "weak": []
         })
 
+@app.route("/presence_status")
+def presence_status():
+    return jsonify({"present": presence_state})
 
 # ================= RUN =================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
+    threading.Thread(target=camera_presence_loop, daemon=True).start()
     app.run(host="0.0.0.0", port=port, threaded=True, debug=False)

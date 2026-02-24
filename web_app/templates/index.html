@@ -103,9 +103,20 @@ function startInterviewTimer(){
 
     updateTimerUI();
 
-    interviewTimer = setInterval(()=>{
-        remainingTime--;
+    interviewTimer = setInterval(async ()=>{
 
+    try{
+        const res = await fetch("/presence_status");
+        const data = await res.json();
+
+        if(!data.present){
+            document.getElementById("modeStatus").innerText = "Interview Paused (No Presence)";
+            return; // Do NOT decrement timer
+        }
+
+        document.getElementById("modeStatus").innerText = "Interview Mode";
+
+        remainingTime--;
         updateTimerUI();
 
         if(remainingTime <= 0){
@@ -113,7 +124,11 @@ function startInterviewTimer(){
             endInterviewByTime();
         }
 
-    },1000);
+    }catch(e){
+        console.log("Presence check error");
+    }
+
+},1000);
 }
 
 function updateTimerUI(){
