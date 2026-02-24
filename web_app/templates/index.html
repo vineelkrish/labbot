@@ -58,34 +58,25 @@ let speaking = false;
 
 let interviewTimer = null;
 let remainingTime = 300; // 5 minutes
+let learningChatHTML = "";
+let interviewChatHTML = "";
 function finishInterview(finalScore=null){
 
     interviewActive = false;
-    currentMode = "learn";
-
     stopInterviewTimer();
     setModeLock(false);
 
-    /* -------- RESTORE BUTTON STATES -------- */
-    const learnBtn = document.getElementById("learnModeBtn");
-    const interviewBtn = document.getElementById("interviewModeBtn");
+    document.getElementById("modeStatus").innerText = "Interview Completed";
 
-    learnBtn.classList.add("active");
-    interviewBtn.classList.remove("active");
+    // Disable submit button after completion
+    document.getElementById("askBtn").disabled = true;
+    document.getElementById("questionInput").disabled = true;
 
-    learnBtn.disabled = false;
-    learnBtn.style.opacity = "1";
-    learnBtn.style.cursor = "pointer";
-
-    /* -------- UI TEXT RESET -------- */
-    document.getElementById("modeStatus").innerText="Learning Mode";
-    document.getElementById("askBtn").innerText="Ask";
-    document.getElementById("questionInput").placeholder="Ask a concept...";
-
-    if(finalScore!==null)
-        addMessage(`🏁 Interview Finished | Score: ${finalScore}%`,"bot");
-    else
+    if(finalScore !== null){
+        showFinalReport(finalScore);
+    } else {
         addMessage("🏁 Interview Finished","bot");
+    }
 }
 function setModeLock(lock){
 
@@ -107,7 +98,7 @@ function setModeLock(lock){
 
 function startInterviewTimer(){
 
-    remainingTime = 90;
+    remainingTime = 40;
     document.getElementById("timer").style.display = "inline";
 
     updateTimerUI();
@@ -139,21 +130,36 @@ function stopInterviewTimer(){
 
 function switchMode(mode){
 
-    if(mode===currentMode) return;
+    if(mode === currentMode) return;
+
+    const chatBox = document.getElementById("chatBox");
+
+    if(currentMode === "learn"){
+        learningChatHTML = chatBox.innerHTML;
+    }
 
     document.getElementById("learnModeBtn").classList.toggle("active",mode==="learn");
     document.getElementById("interviewModeBtn").classList.toggle("active",mode==="interview");
 
-    if(mode==="learn"){
-    enterLearningMode();
+    currentMode = mode;
+
+    if(mode === "learn"){
+
+        chatBox.innerHTML = learningChatHTML || `
+            <div class="welcome">
+                <div class="ai-avatar"></div>
+                <div class="welcome-text"></div>
+            </div>
+        `;
+
+        enterLearningMode();
     }
     else{
-    if(interviewActive) return;
-    enterInterviewMode();
-    }
-    currentMode=mode;
-}
 
+        chatBox.innerHTML = "";
+        enterInterviewMode();
+    }
+}
 function unlockVoice(){
 
     if(!window.speechSynthesis) return;
@@ -248,13 +254,14 @@ async function enterInterviewMode(){
     }
 
     interviewActive=true;
-
+    document.getElementById("askBtn").disabled = false;
+    document.getElementById("questionInput").disabled = false;
     document.getElementById("modeStatus").innerText="Interview Mode";
     document.getElementById("askBtn").innerText="Submit";
     document.getElementById("questionInput").placeholder="Type your answer...";
 
     addMessage("🎓 Interview Started","bot");
-    addMessage(data.question,"bot");
+    addInterviewQuestion(data.question);
     setModeLock(true);
     startInterviewTimer();
 }
@@ -275,30 +282,28 @@ async function submitInterviewAnswer(answer){
 
     addMessage(`Score: ${data.score}%\n${data.feedback}`,"bot");
 
-    if(data.next){
-        addMessage(data.next,"bot");
-    }
-    else{
-        finishInterview(data.final_score);
+if(data.next !== null && data.next !== undefined){
+    addInterviewQuestion(data.next);
+    } 
+else {
+    finishInterview(data.final_score);
     }
 }
 /* ---------------- LEARNING MODE ---------------- */
 
 function enterLearningMode(){
 
-    if(interviewActive){
-        addMessage("⏳ Finish interview first","bot");
-        return;
-    }
+    interviewActive = false;
 
-    currentMode="learn";
-    setModeLock(false);
+    // Re-enable input & button
+    document.getElementById("askBtn").disabled = false;
+    document.getElementById("questionInput").disabled = false;
 
     document.getElementById("modeStatus").innerText="Learning Mode";
     document.getElementById("askBtn").innerText="Ask";
     document.getElementById("questionInput").placeholder="Ask a concept...";
 
-    addMessage("📘 Learning Mode","bot");
+    setModeLock(false);
 }
 /* ---------------- VOICE ---------------- */
 
@@ -440,7 +445,53 @@ function removeTyping(){
     const t=document.getElementById("typing");
     if(t) t.remove();
 }
+function addInterviewQuestion(text){
 
+    const chat=document.getElementById("chatBox");
+
+    const wrapper=document.createElement("div");
+    wrapper.className="msg-wrapper bot";
+
+    const card=document.createElement("div");
+    card.className="msg bot interview-card";
+
+    card.innerHTML = `
+        <div class="interview-label">🎓 Interview Question</div>
+        <div class="interview-text">${text}</div>
+    `;
+
+    wrapper.appendChild(card);
+    chat.appendChild(wrapper);
+    chat.scrollTop=chat.scrollHeight;
+}
+
+function showFinalReport(score){
+
+    const chat=document.getElementById("chatBox");
+
+    const wrapper=document.createElement("div");
+    wrapper.className="msg-wrapper bot";
+
+    const card=document.createElement("div");
+    card.className="msg bot final-report";
+
+    let grade = "Needs Improvement";
+    if(score >= 75) grade = "Excellent";
+    else if(score >= 50) grade = "Good";
+
+    card.innerHTML = `
+        <div class="report-title">🎓 Final Evaluation Report</div>
+        <div class="report-score">Score: ${score}%</div>
+        <div class="report-grade">Grade: ${grade}</div>
+        <div class="report-bar">
+            <div class="report-fill" style="width:${score}%"></div>
+        </div>
+    `;
+
+    wrapper.appendChild(card);
+    chat.appendChild(wrapper);
+    chat.scrollTop=chat.scrollHeight;
+}
 /* ---------------- MIC ---------------- */
 
 function startVoice(){

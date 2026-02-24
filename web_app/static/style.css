@@ -504,3 +504,60 @@ input::placeholder{color:#94a3b8}
     opacity: 0;
     transition: opacity 0.3s ease;
 }
+.interview-card {
+    background: linear-gradient(135deg, #001f2e, #003f5c);
+    border-left: 4px solid #00ffff;
+    padding: 18px 22px;
+    border-radius: 16px;
+    box-shadow: 0 0 18px rgba(0,255,255,0.3);
+}
+
+.interview-label {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 6px;
+}
+
+.interview-text {
+    font-size: 16px;
+    font-weight: 500;
+}
+.final-report {
+    background: linear-gradient(145deg, #001f2e, #002b3f);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 0 25px rgba(0,255,255,0.4);
+}
+
+.report-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.report-score {
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.report-grade {
+    margin-bottom: 12px;
+}
+
+.report-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.report-fill {
+    height: 100%;
+    background: #00ffff;
+}
+
+.report-note {
+    font-size: 14px;
+    opacity: 0.8;
+}
